@@ -1,0 +1,98 @@
+{
+    "git.autofetch": true,
+    "python.languageServer": "Pylance",
+    "python.defaultInterpreterPath": "py",
+    "python.analysis.diagnosticMode": "openFilesOnly",
+    "python.analysis.autoImportCompletions": true,
+    // Включает автоматическое добавление импорта модуля, если его нет,
+    // но в коде найдены на него ссылки
+    "python.analysis.typeCheckingMode": "off",
+    // Очень полезная, но очень суровая опция - включает проверку
+    // соответствия типов для языкового движка Pylance. По сути попытка
+    // сделать из Python типизированный язык. Доступные значения:
+    //  off: анализ проверки типа не проводится; производится диагностика
+    //       неразрешенных импортов/переменных
+    //  basic: Правила, не связанные с проверкой типов (все правила в off)
+    //         + базовые правила проверки типов
+    //  strict: все правила проверки типов с наивысшей серьезностью ошибки
+    //          (включая все правила в категориях off и basic)
+    "python.analysis.inlayHints.variableTypes": false,
+    // Анализирует ваши переменные и предлагает для них подходящие типы.
+    // Так же позволяет двойным кликом добавить тип
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    // Анализирует ваши функции и классы и предлагает подходящие типы
+    // выходных данных. Так же дает подсказки, какой выходной тип вы получите
+    "python.terminal.activateEnvironment": true,
+    // Если в проекте найдено виртуальное окружение, то в терминале оно
+    // будет автоматически активироваться при переходе в этот проект
+    "python.linting.enabled": true,
+    // Включает линтер для питона
+    "python.linting.flake8Enabled": true,
+    // Выбор каким линтером пользоваться.  Я выбрал flake8.
+    "python.linting.flake8Args": [
+        "--max-line-length=250",
+    // "--ignore=E402,F841,F401,E302,E305",
+    ],
+    // Настройки flake8. Я лично выставил себе только увеличение максимальной
+    // длинны строки - по дефолту 80, этого мало для меня
+    "[python]": { 
+        // Настройка автоматического форматирования. Удобно тем, что при сохранении
+        // автоматически приводит форматирование к правильному по мнению форматора виду
+        "editor.defaultFormatter":"ms-python.python",
+        // Выбор форматера
+        "editor.formatOnSave": true,
+        // Включает форматирование при сохранении
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+            // Форматирует импорты. Могут быть проблемы, если импорты зависят друг от друга
+        },
+        "files.exclude": {
+        // Крайне полезная на мой взгляд функция - задается список файлов, которые
+        // исключаются из показа в дереве каталогов. Отлично подходит для скрытия всяких
+        // ненужных системных каталогов
+            "**/.git": true,
+            "**/__pycache__": true,
+            "**/.DS_Store": true,
+            "**/Thumbs.db": true
+        },
+        "files.watcherExclude": {
+        // еще одна крайне любопытная опция - за изменениями файлов из
+        // этого списка VS Code не следит
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/*/**": true,
+            "**/.hg/store/**": true,
+            "**/__pycache__/**": true,
+            "**/.venv-*/**": true
+        },
+        "files.enableTrash": false,
+        // Включение/выключение корзины. Если False то файлы удаляются сразу же
+        "cSpell.language": "en,ru",
+        // Крайне полезный плагин и настройки - проверка орфографии.
+        // Настоятельно рекомендую к установке
+        "cSpell.words": [
+        // Тут список слов, которые мы добавили в исключения
+                "Clickhouse",
+                "fastapi",
+                "jsonify",
+                "loguru"
+            ]
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "__pycache__": true,
+        "**/__pycache__": true
+    },
+    "explorerExclude.backup": {},
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "editor.minimap.maxColumn": 140
+}
