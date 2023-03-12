@@ -2,13 +2,16 @@ import json
 
 from django.conf import settings
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DeleteView, DetailView, ListView, UpdateView
+from rest_framework.generics import ListAPIView
 
 from ads.models import Ad, Category
+from ads.serializers import AdListSerializer
 
 
 def index(request) -> JsonResponse:
@@ -16,37 +19,46 @@ def index(request) -> JsonResponse:
 
 
 # * Ad CRUD
-class AdListView(ListView):
-    model = Ad
+class AdListView(ListAPIView):
+    queryset = Ad.objects.all()
+    serializer_class = AdListSerializer
 
     def get(self, request, *args, **kwargs) -> JsonResponse:
-        super().get(request, *args, **kwargs)
+        self.queryset = self.queryset.order_by("-price")
 
-        self.object_list = self.object_list.select_related(
-            "author").order_by("-price")
+        # Фильтр по категориям
+        categories_q = None
+        if categories := request.GET.getlist('cat', None):
+            for item in categories:
+                if categories_q is None:
+                    categories_q = Q(category__pk__icontains=item)
+                else:
+                    categories_q |= Q(category__pk__icontains=item)
 
-        paginator = Paginator(self.object_list, settings.TOTAL_ON_PAGE)
-        page_number = request.GET.get("page")
-        page_objects = paginator.get_page(page_number)
+        if categories_q:
+            self.queryset = self.queryset.filter(categories_q)
 
-        items_array = []
-        for item in page_objects:
-            items_array.append(
-                {
-                    "id": item.pk,
-                    "name": item.author.username,
-                    "price": item.price,
-                    "description": item.description,
-                    "is_publish": item.is_published
-                }
-            )
+        # Фильтр по вхождению слова
+        if text := request.GET.get('text', None):
+            text_q = Q(description__icontains=text)
+            text_q |= Q(name__icontains=text)
+            self.queryset = self.queryset.filter(text_q)
 
-        response = {
-            "items": items_array,
-            "num_pages": paginator.num_pages,
-            "total": paginator.count
-        }
-        return JsonResponse(response, safe=False)
+        # Локация
+        if loc_name := request.GET.get('location', None):
+            self.queryset = self.queryset.filter(
+                Q(author__location__name__icontains=loc_name))
+
+        # Диапазон цен
+        if price_from := request.GET.get('price_from', None):
+            self.queryset = self.queryset.filter(
+                Q(price__gte=price_from))
+
+        if price_to := request.GET.get('price_to', None):
+            self.queryset = self.queryset.filter(
+                Q(price__lte=price_to))
+
+        return super().get(request, *args, **kwargs)
 
 
 class AdDetailView(DetailView):
