@@ -88,11 +88,5 @@
         "__pycache__": true,
         "**/__pycache__": true
     },
-    "explorerExclude.backup": {},
-    "python.testing.pytestArgs": [
-        "tests"
-    ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "editor.minimap.maxColumn": 140
+    "explorerExclude.backup": {}
 }

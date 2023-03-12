@@ -1,6 +1,5 @@
 import json
 
-from ads.models import Ad, Category
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -8,6 +7,8 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DeleteView, DetailView, ListView, UpdateView
+
+from ads.models import Ad, Category
 
 
 def index(request) -> JsonResponse:
