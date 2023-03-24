@@ -47,7 +47,7 @@ class SelectionCreateSelializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if "owner" not in validated_data:
             validated_data["owner"] = request.user
-        elif "owner" in validated_data and request.user.role == UserRole.MEMBER:
+        elif "owner" in validated_data and request.user.role == UserRole.MEMBER and request.user != validated_data['owner']:
             raise PermissionError("Нет доступа")
 
         return super().create(validated_data)

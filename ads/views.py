@@ -188,8 +188,7 @@ class AdSelectionView(ModelViewSet):
     default_serializer = SelectionSerializer
 
     serializer_classes = {
-        'create': SelectionCreateSelializer,
-        'list': AdListSerializer
+        'create': SelectionCreateSelializer
     }
 
     default_permission = [AllowAny(), ]
