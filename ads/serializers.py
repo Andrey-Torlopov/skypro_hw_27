@@ -1,7 +1,5 @@
-from dataclasses import field
-
-from pkg_resources import require
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from ads.models import Ad, Category, Selection
 from users.models import User, UserRole
@@ -48,6 +46,6 @@ class SelectionCreateSelializer(serializers.ModelSerializer):
         if "owner" not in validated_data:
             validated_data["owner"] = request.user
         elif "owner" in validated_data and request.user.role == UserRole.MEMBER and request.user != validated_data['owner']:
-            raise PermissionError("Нет доступа")
+            return ValidationError("Нет доступа")
 
         return super().create(validated_data)
