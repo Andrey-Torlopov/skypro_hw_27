@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -23,14 +24,10 @@ class UserRole(models.TextChoices):
     ADMIN = 'admin', _("admin")
 
 
-class User(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    username = models.CharField(max_length=100)
-    password = models.CharField(max_length=100)
+class User(AbstractUser):
     role = models.CharField(
         max_length=10, choices=UserRole.choices, default='member')
-    age = models.PositiveSmallIntegerField()
+    age = models.PositiveSmallIntegerField(null=True)
     location = models.ManyToManyField(Location, null=True, blank=True)
 
     class Meta:
@@ -40,3 +37,9 @@ class User(models.Model):
 
     def __str__(self) -> str:
         return self.username
+
+    # def save(self, *args, **kwargs) -> None:
+    #     # Первый способ. Мы переписываем пароль и хешируем его
+    #     # Второй способ в сериализаторе создания пользователя
+    #     # self.set_password(self.password)
+    #     return super().save(*args, **kwargs)

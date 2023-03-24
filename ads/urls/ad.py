@@ -1,6 +1,7 @@
 
-from ads.views import AdDetailView, AdImageView, AdListView
 from django.urls import path
+
+from ads.views import AdDetailView, AdImageView, AdListView
 
 urlpatterns = [
     path("", AdListView.as_view()),

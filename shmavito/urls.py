@@ -19,11 +19,12 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
 
-from ads.views import index
+from ads.views import AdSelectionView, index
 from users.views import LocationViewSet
 
 router = routers.SimpleRouter()
 router.register('location', LocationViewSet)
+router.register('selection', AdSelectionView)
 
 
 urlpatterns = [

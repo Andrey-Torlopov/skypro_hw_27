@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from users.models import Location, User
 
 
@@ -40,12 +39,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def is_valid(self, raise_exception=False) -> bool:
-        self._locations = self.initial_data.pop("location")
+        self._locations = self.initial_data.pop("location", [])
 
         return super().is_valid(raise_exception=raise_exception)
 
     def create(self, validated_data) -> User:
         item = User.objects.create(**validated_data)
+        # Для хеширования пароля и надо сохранить юзера.
+        item.set_password(validated_data['password'])
 
         for location_name in self._locations:
             location_object, _ = Location.objects.get_or_create(
@@ -70,7 +71,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         exclude = ['password']
 
     def is_valid(self, raise_exception=False) -> bool:
-        self._locations = self.initial_data.pop("location")
+        self._locations = self.initial_data.pop("location", [])
 
         return super().is_valid(raise_exception=raise_exception)
 

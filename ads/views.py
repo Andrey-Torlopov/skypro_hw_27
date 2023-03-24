@@ -1,17 +1,21 @@
 import json
 
-from django.conf import settings
-from django.core.paginator import Paginator
+# from django.conf import settings
+# from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DeleteView, DetailView, ListView, UpdateView
-from rest_framework.generics import ListAPIView
+from django.views.generic import DeleteView, DetailView, UpdateView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
 
-from ads.models import Ad, Category
-from ads.serializers import AdListSerializer
+from ads.models import Ad, Category, Selection
+from ads.permissions import IsAdSelectionOwner, IsSelectionOwnerPermission
+from ads.serializers import (AdDetailSerializer, AdListSerializer,
+                             SelectionSerializer)
 
 
 def index(request) -> JsonResponse:
@@ -61,19 +65,10 @@ class AdListView(ListAPIView):
         return super().get(request, *args, **kwargs)
 
 
-class AdDetailView(DetailView):
-    model = Ad
-
-    def get(self, request, *args, **kwargs) -> JsonResponse:
-        item = self.get_object()
-
-        return JsonResponse({
-            "id": item.pk,
-            "name": item.author.username,
-            "price": item.price,
-            "description": item.description,
-            "is_publish": item.is_published
-        }, safe=False, status=200)
+class AdDetailView(RetrieveAPIView):
+    queryset = Ad.objects.all()
+    serializer_class = AdDetailSerializer
+    permission_classes = [IsAuthenticated, IsAdSelectionOwner]
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -186,3 +181,19 @@ class CategoryDeleteView(DeleteView):
         super().delete(request, *args, **kwargs)
 
         return JsonResponse({"status": "ok"}, status=200)
+
+
+class AdSelectionView(ModelViewSet):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionSerializer
+
+    default_permission = [AllowAny(), ]
+    permissions_list = {
+        "create": [IsAuthenticated()],
+        "update": [IsAuthenticated(), IsSelectionOwnerPermission()],
+        "partial_update": [IsAuthenticated(), IsSelectionOwnerPermission()],
+        "destroy": [IsAuthenticated(), IsSelectionOwnerPermission()]
+    }
+
+    def get_permissions(self):
+        return self.permissions_list.get(self.action, self.default_permission)
