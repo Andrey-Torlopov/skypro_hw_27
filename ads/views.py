@@ -15,7 +15,7 @@ from rest_framework.viewsets import ModelViewSet
 from ads.models import Ad, Category, Selection
 from ads.permissions import IsAdSelectionOwner, IsSelectionOwnerPermission
 from ads.serializers import (AdDetailSerializer, AdListSerializer,
-                             SelectionSerializer)
+                             SelectionCreateSelializer, SelectionSerializer)
 
 
 def index(request) -> JsonResponse:
@@ -185,7 +185,12 @@ class CategoryDeleteView(DeleteView):
 
 class AdSelectionView(ModelViewSet):
     queryset = Selection.objects.all()
-    serializer_class = SelectionSerializer
+    default_serializer = SelectionSerializer
+
+    serializer_classes = {
+        'create': SelectionCreateSelializer,
+        'list': AdListSerializer
+    }
 
     default_permission = [AllowAny(), ]
     permissions_list = {
@@ -197,3 +202,8 @@ class AdSelectionView(ModelViewSet):
 
     def get_permissions(self):
         return self.permissions_list.get(self.action, self.default_permission)
+
+    def get_serializer_class(self):
+        return self.serializer_classes.get(self.action, self.default_serializer)
+
+        return super().get_serializer(*args, **kwargs)
