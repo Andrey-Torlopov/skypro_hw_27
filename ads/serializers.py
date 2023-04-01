@@ -6,6 +6,11 @@ from users.models import User, UserRole
 from users.serializers import UserListSerializer
 
 
+def check_created_published_flag(value: bool) -> None:
+    if value:
+        raise ValidationError(f"{value} can't be True.")
+
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -15,6 +20,14 @@ class CategorySerializer(serializers.ModelSerializer):
 class AdListSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     author = UserListSerializer()
+
+    class Meta:
+        model = Ad
+        fields = '__all__'
+
+
+class AdCreateSerializer(serializers.ModelSerializer):
+    is_publish = serializers.BooleanField(validators=[check_created_published_flag], default=False)
 
     class Meta:
         model = Ad

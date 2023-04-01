@@ -1,6 +1,22 @@
+from datetime import date
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from rest_framework.exceptions import ValidationError
+
+
+def check_children_age(value: date) -> None:
+    today = date.today()
+    age = today.year - value.year - ((today.month, today.day) < (value.month, value.day))
+    if age < 9:
+        raise ValidationError("Пользователь не может быть младше 9 лет.")
+
+
+def not_rambler_mail(value: str) -> None:
+    domain = value.split("@")[1].split(".")[0]
+    if domain.lower() == 'rambler.ru':
+        raise ValidationError('Нельзя регистрироваться с rambler.ru.')
 
 
 class Location(models.Model):
@@ -27,8 +43,9 @@ class UserRole(models.TextChoices):
 class User(AbstractUser):
     role = models.CharField(
         max_length=10, choices=UserRole.choices, default='member')
-    age = models.PositiveSmallIntegerField(null=True)
     location = models.ManyToManyField(Location, null=True, blank=True)
+    birth_date = models.DateField(null=True, validators=[check_children_age])
+    email = models.CharField(max_length=50, unique=True, validators=[not_rambler_mail])
 
     class Meta:
         verbose_name = "Пользователь"
@@ -37,9 +54,3 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         return self.username
-
-    # def save(self, *args, **kwargs) -> None:
-    #     # Первый способ. Мы переписываем пароль и хешируем его
-    #     # Второй способ в сериализаторе создания пользователя
-    #     # self.set_password(self.password)
-    #     return super().save(*args, **kwargs)

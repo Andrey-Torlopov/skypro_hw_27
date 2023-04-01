@@ -40,10 +40,10 @@
         // автоматически приводит форматирование к правильному по мнению форматора виду
         "editor.defaultFormatter":"ms-python.python",
         // Выбор форматера
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         // Включает форматирование при сохранении
         "editor.codeActionsOnSave": {
-            "source.organizeImports": true
+            "source.organizeImports": false
             // Форматирует импорты. Могут быть проблемы, если импорты зависят друг от друга
         },
         "files.exclude": {
@@ -67,16 +67,17 @@
         },
         "files.enableTrash": false,
         // Включение/выключение корзины. Если False то файлы удаляются сразу же
-        "cSpell.language": "en,ru",
+        // "cSpell.language": "en,ru",
         // Крайне полезный плагин и настройки - проверка орфографии.
         // Настоятельно рекомендую к установке
-        "cSpell.words": [
+        // "cSpell.words": [
         // Тут список слов, которые мы добавили в исключения
-                "Clickhouse",
-                "fastapi",
-                "jsonify",
-                "loguru"
-            ]
+        //         "Clickhouse",
+        //         "fastapi",
+        //         "jsonify",
+        //         "loguru",
+        //         "viewsets"
+        //     ]
     },
     "files.exclude": {
         "**/.git": true,
@@ -88,5 +89,10 @@
         "__pycache__": true,
         "**/__pycache__": true
     },
-    "explorerExclude.backup": {}
+    "explorerExclude.backup": {},
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

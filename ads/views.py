@@ -1,7 +1,5 @@
 import json
 
-# from django.conf import settings
-# from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
@@ -14,8 +12,9 @@ from rest_framework.viewsets import ModelViewSet
 
 from ads.models import Ad, Category, Selection
 from ads.permissions import IsAdSelectionOwner, IsSelectionOwnerPermission
-from ads.serializers import (AdDetailSerializer, AdListSerializer,
-                             SelectionCreateSelializer, SelectionSerializer)
+from ads.serializers import (AdCreateSerializer, AdDetailSerializer,
+                             AdListSerializer, SelectionCreateSelializer,
+                             SelectionSerializer)
 
 
 def index(request) -> JsonResponse:
@@ -25,7 +24,13 @@ def index(request) -> JsonResponse:
 # * Ad CRUD
 class AdListView(ListAPIView):
     queryset = Ad.objects.all()
-    serializer_class = AdListSerializer
+    default_serializer = AdListSerializer
+
+    serializer_classes = {
+        "retrieve": AdDetailSerializer,
+        "list": AdListSerializer,
+        "create": AdCreateSerializer
+    }
 
     def get(self, request, *args, **kwargs) -> JsonResponse:
         self.queryset = self.queryset.order_by("-price")
@@ -204,5 +209,3 @@ class AdSelectionView(ModelViewSet):
 
     def get_serializer_class(self):
         return self.serializer_classes.get(self.action, self.default_serializer)
-
-        return super().get_serializer(*args, **kwargs)
