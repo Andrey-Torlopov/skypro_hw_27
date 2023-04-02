@@ -17,6 +17,7 @@ class IsAdSelectionOwner(BasePermission):
     message = "У вас нет прав на изменение объявления"
 
     def has_object_permission(self, request, view, ad) -> bool:
-        if request.user == ad.user or request.user.role != UserRole.MEMBER:
+        print(ad)
+        if request.user == ad.author or request.user.role != UserRole.MEMBER:
             return True
         return False

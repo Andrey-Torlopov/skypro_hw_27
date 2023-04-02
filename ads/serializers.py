@@ -27,7 +27,8 @@ class AdListSerializer(serializers.ModelSerializer):
 
 
 class AdCreateSerializer(serializers.ModelSerializer):
-    is_publish = serializers.BooleanField(validators=[check_created_published_flag], default=False)
+    id = serializers.IntegerField(required=False)
+    is_published = serializers.BooleanField(validators=[check_created_published_flag], default=False)
 
     class Meta:
         model = Ad
@@ -47,6 +48,7 @@ class SelectionSerializer(serializers.ModelSerializer):
 
 
 class SelectionCreateSelializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     owner = serializers.SlugRelatedField(
         slug_field='username', queryset=User.objects.all(), required=False)
 

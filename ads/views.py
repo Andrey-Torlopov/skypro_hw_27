@@ -15,14 +15,20 @@ from ads.permissions import IsAdSelectionOwner, IsSelectionOwnerPermission
 from ads.serializers import (AdCreateSerializer, AdDetailSerializer,
                              AdListSerializer, SelectionCreateSelializer,
                              SelectionSerializer)
+from rest_framework.pagination import PageNumberPagination
 
 
 def index(request) -> JsonResponse:
     return JsonResponse({"status": "ok"}, status=200)
 
 
+class AdPagination(PageNumberPagination):
+    page_size = 5
+
 # * Ad CRUD
-class AdListView(ListAPIView):
+
+
+class AdViewSet(ModelViewSet):
     queryset = Ad.objects.all()
     default_serializer = AdListSerializer
 
@@ -32,22 +38,24 @@ class AdListView(ListAPIView):
         "create": AdCreateSerializer
     }
 
-    def get(self, request, *args, **kwargs) -> JsonResponse:
-        self.queryset = self.queryset.order_by("-price")
+    default_permission = [AllowAny()]
+    permissions_list = {
+        "retrieve": [IsAuthenticated()]
+    }
 
-        # Фильтр по категориям
-        categories_q = None
-        if categories := request.GET.getlist('cat', None):
-            for item in categories:
-                if categories_q is None:
-                    categories_q = Q(category__pk__icontains=item)
-                else:
-                    categories_q |= Q(category__pk__icontains=item)
+    pagination_class = AdPagination
 
-        if categories_q:
-            self.queryset = self.queryset.filter(categories_q)
+    def get_serializer_class(self):
+        return self.serializer_classes.get(self.action, self.default_serializer)
 
-        # Фильтр по вхождению слова
+    def get_permissions(self):
+        return self.permissions_list. get(self.action, self.default_permission)
+
+    def list(self, request, *args, **kwargs):
+        categories = request.GET.getlist("cat")
+        if categories:
+            self.queryset = self.queryset.filter(category_id_in=categories)
+
         if text := request.GET.get('text', None):
             text_q = Q(description__icontains=text)
             text_q |= Q(name__icontains=text)
@@ -67,7 +75,7 @@ class AdListView(ListAPIView):
             self.queryset = self.queryset.filter(
                 Q(price__lte=price_to))
 
-        return super().get(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
 
 class AdDetailView(RetrieveAPIView):
